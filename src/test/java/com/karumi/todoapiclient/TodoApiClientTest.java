@@ -211,6 +211,30 @@ public class TodoApiClientTest extends MockWebServerTest {
         apiClient.updateTaskById(task);
     }
 
+    //DELETE ONE TASK
+    @Test
+    public void shouldDeleteOneTaskCorrectPath () throws Exception {
+        enqueueMockResponse();
+
+        apiClient.deleteTaskById("1");
+
+        assertDeleteRequestSentTo("/todos/1");
+    }
+
+    @Test (expected = ItemNotFoundException.class)
+    public void shouldDeleteOneTaskServerReturns404 () throws Exception {
+        enqueueMockResponse(404);
+
+        apiClient.deleteTaskById("1");
+    }
+
+
+    @Test (expected = UnknownErrorException.class)
+    public void shouldDeleteOneTaskServerReturns500 () throws Exception {
+        enqueueMockResponse(500);
+
+        apiClient.deleteTaskById("1");
+    }
 
   private void assertTaskContainsExpectedValues(TaskDto task) {
     assertEquals(task.getId(), "1");
