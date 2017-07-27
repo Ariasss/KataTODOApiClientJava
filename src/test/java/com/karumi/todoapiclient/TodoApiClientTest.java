@@ -16,6 +16,9 @@
 package com.karumi.todoapiclient;
 
 import com.karumi.todoapiclient.dto.TaskDto;
+import com.karumi.todoapiclient.exception.TodoApiClientException;
+
+import java.io.IOException;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,28 +36,21 @@ public class TodoApiClientTest extends MockWebServerTest {
     apiClient = new TodoApiClient(mockWebServerEndpoint);
   }
 
-  @Test public void sendsAcceptAndContentTypeHeaders() throws Exception {
-    enqueueMockResponse();
-
-    apiClient.getAllTasks();
-
-    assertRequestContainsHeader("Accept", "application/json");
-  }
-
-  @Test public void sendsGetAllTaskRequestToTheCorrectEndpoint() throws Exception {
-    enqueueMockResponse();
-
-    apiClient.getAllTasks();
-
-    assertGetRequestSentTo("/todos");
-  }
-
-  @Test public void parsesTasksProperlyGettingAllTheTasks() throws Exception {
-    enqueueMockResponse(200, "getTasksResponse.json");
+  @Test
+  public void shouldReturnTheTasksFromToDoEndpoint () throws IOException, TodoApiClientException {
+    enqueueMockResponse(200,"getTasksResponse.json");
 
     List<TaskDto> tasks = apiClient.getAllTasks();
 
-    assertEquals(tasks.size(), 200);
+    assertEquals(200, tasks.size());
+  }
+
+  @Test
+  public void shouldReturnTheValuesFromFirstTask () throws IOException, TodoApiClientException {
+    enqueueMockResponse(200,"getTasksResponse.json");
+
+    List<TaskDto> tasks = apiClient.getAllTasks();
+
     assertTaskContainsExpectedValues(tasks.get(0));
   }
 
