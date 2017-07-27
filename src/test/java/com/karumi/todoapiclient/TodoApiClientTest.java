@@ -16,7 +16,9 @@
 package com.karumi.todoapiclient;
 
 import com.karumi.todoapiclient.dto.TaskDto;
+import com.karumi.todoapiclient.exception.NetworkErrorException;
 import com.karumi.todoapiclient.exception.TodoApiClientException;
+import com.karumi.todoapiclient.exception.UnknownErrorException;
 
 import java.io.IOException;
 import java.util.List;
@@ -47,12 +49,30 @@ public class TodoApiClientTest extends MockWebServerTest {
 
   @Test
   public void shouldReturnTheValuesFromFirstTask () throws IOException, TodoApiClientException {
-    enqueueMockResponse(200,"getTasksResponse.json");
+    enqueueMockResponse(200, "getTasksResponse.json");
 
     List<TaskDto> tasks = apiClient.getAllTasks();
 
     assertTaskContainsExpectedValues(tasks.get(0));
   }
+
+  @Test
+  public void shouldGetCallToTheCorrectPath () throws TodoApiClientException, InterruptedException, IOException {
+    enqueueMockResponse();
+
+    List<TaskDto> tasks = apiClient.getAllTasks();
+
+    assertGetRequestSentTo("/todos");
+  }
+
+  @Test (expected = UnknownErrorException.class)
+  public void shouldLaunchException () throws TodoApiClientException, InterruptedException, IOException {
+    enqueueMockResponse(418);
+
+    List<TaskDto> tasks = apiClient.getAllTasks();
+
+  }
+
 
   private void assertTaskContainsExpectedValues(TaskDto task) {
     assertEquals(task.getId(), "1");
