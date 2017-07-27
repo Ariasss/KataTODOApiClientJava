@@ -39,6 +39,8 @@ public class TodoApiClientTest extends MockWebServerTest {
     apiClient = new TodoApiClient(mockWebServerEndpoint);
   }
 
+  //GET ALL TASKS
+
   @Test
   public void shouldReturnTheTasksFromToDoEndpoint () throws Exception {
     enqueueMockResponse(200,"getTasksResponse.json");
@@ -73,6 +75,8 @@ public class TodoApiClientTest extends MockWebServerTest {
     apiClient.getAllTasks();
 
   }
+
+  //GET ONE TASK
 
   @Test
   public void shouldGetOneTaskCorrectResponseAndPath () throws Exception{
@@ -110,6 +114,8 @@ public class TodoApiClientTest extends MockWebServerTest {
 
   }
 
+  //ADD TASK
+
   @Test
   public void shouldAddOneTaskCorrectPath () throws Exception {
     enqueueMockResponse();
@@ -135,13 +141,13 @@ public class TodoApiClientTest extends MockWebServerTest {
     enqueueMockResponse();
 
     TaskDto task = new TaskDto("1","2","Finish this kata",false);
-    TaskDto addedTask = apiClient.addTask(task);
+    apiClient.addTask(task);
 
     assertRequestBodyEquals("addTaskRequest.json");
   }
 
   @Test (expected = UnknownErrorException.class)
-  public void shouldAdddOneTaskServerReturns418 () throws Exception {
+  public void shouldAddOneTaskServerReturns418 () throws Exception {
     enqueueMockResponse(418);
 
     TaskDto task = new TaskDto("1","2","Finish this kata",false);
@@ -150,12 +156,60 @@ public class TodoApiClientTest extends MockWebServerTest {
 
 
   @Test (expected = UnknownErrorException.class)
-  public void shouldAdddOneTaskServerReturns500 () throws Exception {
+  public void shouldAddOneTaskServerReturns500 () throws Exception {
     enqueueMockResponse(500);
 
     TaskDto task = new TaskDto("1","2","Finish this kata",false);
     apiClient.addTask(task);
   }
+
+  //UPDATE ONE TASK
+  @Test
+  public void shouldUpdateOneTaskCorrectPath () throws Exception {
+    enqueueMockResponse();
+
+    TaskDto task = new TaskDto("1","1","Hi Puri",false);
+    apiClient.updateTaskById(task);
+
+    assertPutRequestSentTo("/todos/1");
+  }
+
+    @Test
+    public void shouldUpdateOneTaskCorrectBody () throws Exception {
+        enqueueMockResponse(201,"updateTaskResponse.json");
+
+        TaskDto task = new TaskDto("1","1","delectus aut autem",false);
+        TaskDto updatedTask = apiClient.updateTaskById(task);
+
+        assertTaskContainsExpectedValues(updatedTask);
+    }
+
+    @Test
+    public void shouldUpdateOneTaskSendCorrectBody () throws Exception {
+        enqueueMockResponse();
+
+        TaskDto task = new TaskDto("1","2","Finish this kata",false);
+        apiClient.updateTaskById(task);
+
+        assertRequestBodyEquals("updateTaskRequest.json");
+    }
+
+    @Test (expected = UnknownErrorException.class)
+    public void shouldUpdateOneTaskServerReturns418 () throws Exception {
+        enqueueMockResponse(418);
+
+        TaskDto task = new TaskDto("1","2","Finish this kata",false);
+        apiClient.updateTaskById(task);
+    }
+
+
+    @Test (expected = UnknownErrorException.class)
+    public void shouldUpdateOneTaskServerReturns500 () throws Exception {
+        enqueueMockResponse(500);
+
+        TaskDto task = new TaskDto("1","2","Finish this kata",false);
+        apiClient.updateTaskById(task);
+    }
 
 
   private void assertTaskContainsExpectedValues(TaskDto task) {
