@@ -110,6 +110,54 @@ public class TodoApiClientTest extends MockWebServerTest {
 
   }
 
+  @Test
+  public void shouldAddOneTaskCorrectPath () throws Exception {
+    enqueueMockResponse();
+
+    TaskDto task = new TaskDto("201","1","Hi Puri",false);
+    apiClient.addTask(task);
+
+    assertPostRequestSentTo("/todos");
+  }
+
+  @Test
+  public void shouldAddOneTaskCorrectBody () throws Exception {
+    enqueueMockResponse(201,"addTaskResponse.json");
+
+    TaskDto task = new TaskDto("1","1","delectus aut autem",false);
+    TaskDto addedTask = apiClient.addTask(task);
+
+    assertTaskContainsExpectedValues(addedTask);
+  }
+
+  @Test
+  public void shouldAddOneTaskSendCorrectBody () throws Exception {
+    enqueueMockResponse();
+
+    TaskDto task = new TaskDto("1","2","Finish this kata",false);
+    TaskDto addedTask = apiClient.addTask(task);
+
+    assertRequestBodyEquals("addTaskRequest.json");
+  }
+
+  @Test (expected = UnknownErrorException.class)
+  public void shouldAdddOneTaskServerReturns418 () throws Exception {
+    enqueueMockResponse(418);
+
+    TaskDto task = new TaskDto("1","2","Finish this kata",false);
+    apiClient.addTask(task);
+  }
+
+
+  @Test (expected = UnknownErrorException.class)
+  public void shouldAdddOneTaskServerReturns500 () throws Exception {
+    enqueueMockResponse(500);
+
+    TaskDto task = new TaskDto("1","2","Finish this kata",false);
+    apiClient.addTask(task);
+  }
+
+
   private void assertTaskContainsExpectedValues(TaskDto task) {
     assertEquals(task.getId(), "1");
     assertEquals(task.getUserId(), "1");
